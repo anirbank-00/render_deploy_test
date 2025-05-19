@@ -1,30 +1,44 @@
-import express from 'express';
+import express, { Application } from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
-
+import path from 'path';
 import * as middlewares from './middlewares';
-import api from './api';
-import MessageResponse from './interfaces/MessageResponse';
+import connection from './utils/db-connect';
+import webRoutes from './routes/web';
+import user from './api/controller/auth/user';
+import provider from './api/controller/auth/provider';
 
-require('dotenv').config();
 
-const app = express();
+  const app: Application = express();
 
-app.use(morgan('dev'));
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+  app.use(cors());
 
-app.get<{}, MessageResponse>('/', (req, res) => {
-  res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄',
+  app.use(morgan('dev'));
+  app.use(helmet());
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use('/static', express.static('public'));
+
+  connection.initialize().then(() => {
+    /* eslint-disable no-console */
+    console.log('Database connection successful');
+    /* eslint-enable no-console */
   });
-});
 
-app.use('/api/v1', api);
+  // * Web Route
+  app.use('/api/web', webRoutes);
 
-app.use(middlewares.notFound);
-app.use(middlewares.errorHandler);
+  // Controller Routes
+  app.use('/api/v1/user', user);
+  app.use('/api/v1/provider', provider);
+
+  // * File upload route
+  app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+  app.use(middlewares.notFound);
+  app.use(middlewares.errorHandler);
+
+
 
 export default app;
