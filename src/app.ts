@@ -20,11 +20,11 @@ import provider from './api/controller/auth/provider';
   app.use(express.urlencoded({ extended: true }));
   app.use('/static', express.static('public'));
 
-  connection.initialize().then(() => {
-    /* eslint-disable no-console */
-    console.log('Database connection successful');
-    /* eslint-enable no-console */
-  });
+  // connection.initialize().then(() => {
+  //   /* eslint-disable no-console */
+  //   console.log('Database connection successful');
+  //   /* eslint-enable no-console */
+  // });
 
   // * Web Route
   app.use('/api/web', webRoutes);
